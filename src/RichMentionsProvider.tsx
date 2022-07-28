@@ -29,6 +29,7 @@ import { deleteSelection } from './utils/deleteSelection';
 interface TProps<T = object> {
   children: React.ReactNode | React.ReactNode[];
   configs: TMentionConfig<T>[];
+  onUpdate?: (value: string) => void;
   getContext?:
     | React.MutableRefObject<TMentionContext | null>
     | ((ref: TMentionContext) => void);
@@ -39,6 +40,7 @@ export function RichMentionsProvider<T = object>({
   children,
   configs,
   getContext,
+  onUpdate,
   getInitialHTML = getConfigsInitialValue(configs),
 }: TProps<T>) {
   // The reference to always have function context working
@@ -174,6 +176,7 @@ export function RichMentionsProvider<T = object>({
       opened,
       closeAutocomplete,
       openAutocomplete,
+      getTransformedValue,
     } = ref.current;
 
     const selection = document.getSelection();
@@ -203,6 +206,7 @@ export function RichMentionsProvider<T = object>({
         openAutocomplete(fragment, text, config);
       }
     }
+    onUpdate && onUpdate(getTransformedValue());
   }
 
   /**
@@ -233,6 +237,8 @@ export function RichMentionsProvider<T = object>({
     } else if (ref.current.opened) {
       closeAutocomplete();
     }
+
+    onUpdate && onUpdate(getTransformedValue());
   }
 
   /**

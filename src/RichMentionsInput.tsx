@@ -4,11 +4,13 @@ import { RichMentionsContext } from './RichMentionsContext';
 interface TProps extends HTMLProps<HTMLDivElement> {
   defaultValue?: string;
   singleLine: Boolean;
+  onEnter?: () => void;
 }
 
 export function RichMentionsInput({
   defaultValue,
   singleLine,
+  onEnter,
   ...divAttributes
 }: TProps) {
   const ref = useRef<string | null>(null);
@@ -18,6 +20,7 @@ export function RichMentionsInput({
     onKeyDown,
     onChanges,
     getInitialHTML,
+    opened,
   } = useContext(RichMentionsContext);
 
   if (ref.current === null && defaultValue && getInitialHTML) {
@@ -31,6 +34,14 @@ export function RichMentionsInput({
 
   const mergeOnKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter') {
+      if (onEnter && !opened) {
+        //Because the updates, has to be applied for the event to get the correct value
+        //TODO: Better handling
+        setTimeout(() => {
+          onEnter();
+        }, 200);
+      }
+
       if (singleLine) {
         event.preventDefault();
       }
