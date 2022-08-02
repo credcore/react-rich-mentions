@@ -1,19 +1,26 @@
-import React, { HTMLProps, useRef, useContext } from 'react';
+import React, { HTMLProps, useRef, useContext, useState } from 'react';
 import { RichMentionsContext } from './RichMentionsContext';
+
+import styles from './RichMentions.module.css';
 
 interface TProps extends HTMLProps<HTMLDivElement> {
   defaultValue?: string;
-  singleLine: Boolean;
+  singleLine?: Boolean;
+  placeholder?: string;
+  className?: string;
   onEnter?: () => void;
 }
 
 export function RichMentionsInput({
   defaultValue,
   singleLine,
+  placeholder,
+  className,
   onEnter,
   ...divAttributes
 }: TProps) {
   const ref = useRef<string | null>(null);
+
   const {
     setInputElement,
     onBeforeChanges,
@@ -21,10 +28,12 @@ export function RichMentionsInput({
     onChanges,
     getInitialHTML,
     opened,
+    getTransformedValue,
   } = useContext(RichMentionsContext);
+  const [isEmpty, setEmpty] = useState(getTransformedValue() ? false : true);
 
-  if (ref.current === null && defaultValue && getInitialHTML) {
-    ref.current = getInitialHTML(defaultValue);
+  if (ref.current === null && getInitialHTML) {
+    ref.current = getInitialHTML(defaultValue ? defaultValue : '');
   }
 
   if (process.env.NODE_ENV !== 'production') {
@@ -58,6 +67,7 @@ export function RichMentionsInput({
       divAttributes.onInput(event);
     }
     onChanges(event);
+    setEmpty(getTransformedValue() ? false : true);
   };
 
   const onBeforeInput = (event: React.FormEvent<HTMLDivElement>) => {
@@ -68,20 +78,23 @@ export function RichMentionsInput({
     }
   };
 
-  let style = {
-    outline: 0,
-  };
+  let style = {};
   if (singleLine) {
-    style = { ...style, ...{ whiteSpace: 'nowrap', overflow: 'hidden' } };
+    style = { whiteSpace: 'nowrap', overflow: 'hidden' };
   }
+
   return (
     <div
       ref={setInputElement}
       {...divAttributes}
+      className={`${styles.xinput} ${
+        isEmpty ? styles.xempty : ''
+      } ${className}`}
       contentEditable={true}
       onBeforeInput={onBeforeInput}
       onKeyDown={mergeOnKeyDown}
       onInput={onInput}
+      data-ph={placeholder}
       dangerouslySetInnerHTML={{ __html: ref.current || '' }}
       style={style}
     ></div>

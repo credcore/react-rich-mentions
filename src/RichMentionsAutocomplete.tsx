@@ -3,9 +3,9 @@ import { RichMentionsContext, TMentionItem } from './RichMentionsContext';
 
 interface TProps {
   fixed?: boolean;
-  className: string;
-  selectedItemClassName: string;
-  itemClassName: string;
+  className?: string;
+  selectedItemClassName?: string;
+  itemClassName?: string;
 }
 
 export function RichMentionsAutocomplete<T = object>({

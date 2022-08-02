@@ -51,7 +51,10 @@ const Root = () => {
 
   return (
     <RichMentionsProvider configs={configs} getContext={ref}>
-      <RichMentionsInput defaultValue={defaultValue} />
+      <RichMentionsInput
+        defaultValue={defaultValue}
+        placeholder="Enter Input here"
+      />
       <RichMentionsAutocomplete />
       <button data-cy="parse" type="button" onClick={getResult}>
         Parse

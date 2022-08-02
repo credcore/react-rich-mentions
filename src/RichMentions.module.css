@@ -1,0 +1,7 @@
+.xinput{
+    outline: 0;
+}
+.xinput.xempty:not(:focus):before{
+    content:attr(data-ph);
+    color:grey;
+}

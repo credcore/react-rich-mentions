@@ -8,7 +8,7 @@ var React = require('react');
 var React__default = _interopDefault(React);
 
 function _extends() {
-  _extends = Object.assign || function (target) {
+  _extends = Object.assign ? Object.assign.bind() : function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -21,7 +21,6 @@ function _extends() {
 
     return target;
   };
-
   return _extends.apply(this, arguments);
 }
 
@@ -67,11 +66,45 @@ var initialContext = {
 };
 var RichMentionsContext = /*#__PURE__*/React.createContext(initialContext);
 
+function styleInject(css, ref) {
+  if ( ref === void 0 ) ref = {};
+  var insertAt = ref.insertAt;
+
+  if (!css || typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
+    }
+  } else {
+    head.appendChild(style);
+  }
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+}
+
+var css_248z = ".RichMentions-module_xinput__OjGR7{\n    outline: 0;\n}\n.RichMentions-module_xinput__OjGR7.RichMentions-module_xempty__yCKLD:not(:focus):before{\n    content:attr(data-ph);\n    color:grey;\n}\n";
+var styles = {"xinput":"RichMentions-module_xinput__OjGR7","xempty":"RichMentions-module_xempty__yCKLD"};
+styleInject(css_248z);
+
+var _excluded = ["defaultValue", "singleLine", "placeholder", "className", "onEnter"];
 function RichMentionsInput(_ref) {
   var defaultValue = _ref.defaultValue,
       singleLine = _ref.singleLine,
+      placeholder = _ref.placeholder,
+      className = _ref.className,
       onEnter = _ref.onEnter,
-      divAttributes = _objectWithoutPropertiesLoose(_ref, ["defaultValue", "singleLine", "onEnter"]);
+      divAttributes = _objectWithoutPropertiesLoose(_ref, _excluded);
 
   var ref = React.useRef(null);
 
@@ -81,10 +114,15 @@ function RichMentionsInput(_ref) {
       onKeyDown = _useContext.onKeyDown,
       onChanges = _useContext.onChanges,
       getInitialHTML = _useContext.getInitialHTML,
-      opened = _useContext.opened;
+      opened = _useContext.opened,
+      getTransformedValue = _useContext.getTransformedValue;
 
-  if (ref.current === null && defaultValue && getInitialHTML) {
-    ref.current = getInitialHTML(defaultValue);
+  var _useState = React.useState(getTransformedValue() ? false : true),
+      isEmpty = _useState[0],
+      setEmpty = _useState[1];
+
+  if (ref.current === null && getInitialHTML) {
+    ref.current = getInitialHTML(defaultValue ? defaultValue : '');
   }
 
   {
@@ -120,6 +158,7 @@ function RichMentionsInput(_ref) {
     }
 
     onChanges(event);
+    setEmpty(getTransformedValue() ? false : true);
   };
 
   var onBeforeInput = function onBeforeInput(event) {
@@ -130,24 +169,24 @@ function RichMentionsInput(_ref) {
     }
   };
 
-  var style = {
-    outline: 0
-  };
+  var style = {};
 
   if (singleLine) {
-    style = _extends({}, style, {
+    style = {
       whiteSpace: 'nowrap',
       overflow: 'hidden'
-    });
+    };
   }
 
   return React__default.createElement("div", Object.assign({
     ref: setInputElement
   }, divAttributes, {
+    className: styles.xinput + " " + (isEmpty ? styles.xempty : '') + " " + className,
     contentEditable: true,
     onBeforeInput: onBeforeInput,
     onKeyDown: mergeOnKeyDown,
     onInput: onInput,
+    "data-ph": placeholder,
     dangerouslySetInnerHTML: {
       __html: ref.current || ''
     },
